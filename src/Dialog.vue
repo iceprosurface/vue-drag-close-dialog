@@ -26,7 +26,7 @@
 </template>
 <script setup>
 import HelloWorld from './components/HelloWorld.vue';
-import { nextTick, ref, useTemplateRef } from 'vue';
+import { ref, useTemplateRef } from 'vue';
 import {
   useEventListener,
   onClickOutside,
@@ -54,9 +54,11 @@ const { y } = useMouse({
 const onDraging = ref(false);
 const { height } = useElementSize(target);
 const startY = ref(0);
+const startTime = ref(0);
 const getPos = event => [event.screenX, event.screenY]
 async function startDrag(event) {
   onDraging.value = true;
+  startTime.value = Date.now();
   startY.value = getPos(event instanceof TouchEvent ? event.touches[0] : event)[1];
   console.log('start drag');
   document.body.style.overflow = 'hidden';
@@ -67,7 +69,9 @@ function dragEnd(event) {
     event.stopPropagation();
     event.preventDefault();
     console.log(event);
-    if (y.value - startY.value > height.value * 0.5) {
+    const isLongMoveHalf = y.value - startY.value > height.value * 0.5
+    const isSwipe = Date.now() - startTime.value < 200;
+    if (isLongMoveHalf || (isSwipe && y.value - startY.value > 40)) {
       emit('update:show', false);
     }
   }
