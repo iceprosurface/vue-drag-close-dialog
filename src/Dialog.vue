@@ -15,8 +15,12 @@
         transition: onDraging ? 'unset' : undefined,
       }"
     >
+    
       <div class="dialogDrag" @mousedown="startDrag" @touchstart="startDrag">拖拽条</div>
-      <HelloWorld />
+      <div>
+        {{ onDraging }}
+        <HelloWorld />
+      </div>
     </div>
   </div>
 </template>
@@ -43,7 +47,9 @@ function close() {
 onClickOutside(target, (event) => {
   close();
 });
-const { y } = useMouse();
+const { y } = useMouse({
+  scroll: false
+});
 const onDraging = ref(false);
 const { height } = useElementSize(target);
 let startY = 0;
@@ -51,6 +57,7 @@ function startDrag(event) {
   onDraging.value = true;
   startY = y.value;
   console.log('start drag');
+  document.body.style.overflow = 'hidden';
 }
 function dragEnd(event) {
   if (onDraging.value) {
@@ -63,9 +70,19 @@ function dragEnd(event) {
   }
   onDraging.value = false;
   console.log('end drag');
+  document.body.style.overflow = 'none';
   return false;
 }
+function draging (e) {
+  if (onDraging.value) {
+    e.stopPropagation();
+    e.preventDefault();
+    console.log('draging');
+  }
+}
 useEventListener(document.body, 'mouseup', dragEnd);
+useEventListener(document.body, 'mousemove', draging);
+useEventListener(document.body, 'touchmove', draging);
 useEventListener(document.body, 'touchend', dragEnd);
 </script>
 
