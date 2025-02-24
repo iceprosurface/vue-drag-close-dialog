@@ -4,6 +4,7 @@
     :class="{
       dialogShow: show,
     }"
+    ref="dialogBack"
   >
     <div
       class="dialogBody"
@@ -40,6 +41,7 @@ const props = defineProps({
   },
 });
 const target = useTemplateRef('target');
+const dialogBack = useTemplateRef('dialogBack');
 const emit = defineEmits(['update:show']);
 function close() {
   emit('update:show', false);
@@ -48,7 +50,8 @@ onClickOutside(target, (event) => {
   close();
 });
 const { y } = useMouse({
-  scroll: false
+  scroll: false,
+  target: dialogBack
 });
 const onDraging = ref(false);
 const { height } = useElementSize(target);
