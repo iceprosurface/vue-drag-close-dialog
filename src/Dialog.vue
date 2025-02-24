@@ -67,9 +67,9 @@ function dragEnd(event) {
     event.stopPropagation();
     event.preventDefault();
     console.log(event);
-  }
-  if (y.value - startY.value > height.value * 0.5) {
-    emit('update:show', false);
+    if (y.value - startY.value > height.value * 0.5) {
+      emit('update:show', false);
+    }
   }
   onDraging.value = false;
   console.log('end drag');
