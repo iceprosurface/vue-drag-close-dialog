@@ -4,7 +4,6 @@
     :class="{
       dialogShow: show,
     }"
-    ref="dialogBack"
   >
     <div
       class="dialogBody"
@@ -19,7 +18,7 @@
     
       <div class="dialogDrag" @mousedown="startDrag" @touchstart="startDrag">拖拽条</div>
       <div>
-        {{ onDraging }}
+        {{ onDraging }} {{ y.toFixed(0) }} {{ startY.toFixed(0) }} {{ height.toFixed(0) }}
         <HelloWorld />
       </div>
     </div>
@@ -27,7 +26,7 @@
 </template>
 <script setup>
 import HelloWorld from './components/HelloWorld.vue';
-import { ref, useTemplateRef } from 'vue';
+import { nextTick, ref, useTemplateRef } from 'vue';
 import {
   useEventListener,
   onClickOutside,
@@ -41,7 +40,6 @@ const props = defineProps({
   },
 });
 const target = useTemplateRef('target');
-const dialogBack = useTemplateRef('dialogBack');
 const emit = defineEmits(['update:show']);
 function close() {
   emit('update:show', false);
@@ -51,16 +49,16 @@ onClickOutside(target, (event) => {
 });
 const { y } = useMouse({
   scroll: false,
-  target: dialogBack
 });
 const onDraging = ref(false);
 const { height } = useElementSize(target);
-let startY = 0;
-function startDrag(event) {
+const startY = ref(0);
+async function startDrag(event) {
   onDraging.value = true;
-  startY = y.value;
+  startY.value = y.value;
   console.log('start drag');
   document.body.style.overflow = 'hidden';
+  document.body.style.touchAction = 'none';
 }
 function dragEnd(event) {
   if (onDraging.value) {
@@ -68,24 +66,16 @@ function dragEnd(event) {
     event.preventDefault();
     console.log(event);
   }
-  if (y.value - startY > height.value * 0.5) {
+  if (y.value - startY.value > height.value * 0.5) {
     emit('update:show', false);
   }
   onDraging.value = false;
   console.log('end drag');
-  document.body.style.overflow = 'none';
+  document.body.style.overflow = '';
+  document.body.style.touchAction = '';
   return false;
 }
-function draging (e) {
-  if (onDraging.value) {
-    e.stopPropagation();
-    e.preventDefault();
-    console.log('draging');
-  }
-}
 useEventListener(document.body, 'mouseup', dragEnd);
-useEventListener(document.body, 'mousemove', draging);
-useEventListener(document.body, 'touchmove', draging);
 useEventListener(document.body, 'touchend', dragEnd);
 </script>
 
