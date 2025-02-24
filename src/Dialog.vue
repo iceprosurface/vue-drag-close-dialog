@@ -16,7 +16,7 @@
       }"
     >
     
-      <div class="dialogDrag" @mousedown="startDrag" @touchstart="startDrag">拖拽条</div>
+      <div class="dialogDrag" @mousedown.capture="startDrag" @touchstart.capture="startDrag">拖拽条</div>
       <div>
         {{ onDraging }} {{ y.toFixed(0) }} {{ startY.toFixed(0) }} {{ height.toFixed(0) }}
         <HelloWorld />
@@ -48,14 +48,16 @@ onClickOutside(target, (event) => {
   close();
 });
 const { y } = useMouse({
-  scroll: false,
+  type: 'screen',
+  resetOnTouchEnds: true,
 });
 const onDraging = ref(false);
 const { height } = useElementSize(target);
 const startY = ref(0);
+const getPos = event => [event.screenX, event.screenY]
 async function startDrag(event) {
   onDraging.value = true;
-  startY.value = y.value;
+  startY.value = getPos(event instanceof TouchEvent ? event.touches[0] : event)[1];
   console.log('start drag');
   document.body.style.overflow = 'hidden';
   document.body.style.touchAction = 'none';
